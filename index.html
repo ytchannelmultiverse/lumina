@@ -1,647 +1,334 @@
-import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import { 
-  Send, Paperclip, Smile, Search, MoreVertical, Check, CheckCheck, 
-  ChevronLeft, Phone, Video, Info, User, Users, Megaphone, 
-  Shield, Settings, Moon, Sun, Trash2, Edit3, Reply, MessageSquare,
-  Mic, Image as ImageIcon, File, Play, Pause, X, Pin, CornerUpRight,
-  SmilePlus, BarChart2, BellOff, Lock, Hash, ArrowRight, Globe, 
-  Zap, Github, Twitter, Menu, Cpu, ShieldCheck, Database, Layers,
-  Terminal, Share2, Volume2, Eye, EyeOff, Key, Monitor, Smartphone,
-  Activity, LifeBuoy, Heart
-} from 'lucide-react';
-
-/**
- * LUMINA MESSENGER - PITCH BLACK EDITION v3.1
- * Dark mode set to #000000 for OLED perfection.
- */
-
-// --- Constants & Enhanced Mock Data ---
-const CURRENT_USER_MOCK = {
-  id: 'u-1',
-  username: 'alex_dev',
-  name: 'Alex Rivera',
-  avatar: 'https://i.pravatar.cc/150?u=u-1',
-  bio: 'Lead Architect @ Lumina. Engineering for privacy.',
-  presence: 'online',
-  phone: '+1 (555) 0123'
-};
-
-const INITIAL_CHATS = [
-  {
-    id: 'c-1',
-    type: 'dm',
-    name: 'Sarah Chen',
-    avatar: 'https://i.pravatar.cc/150?u=u-2',
-    lastMessage: 'The encryption keys are rotated.',
-    timestamp: '10:42 AM',
-    unreadCount: 2,
-    online: true,
-    isE2EE: true,
-    bio: 'Product Designer | Cryptography enthusiast'
-  },
-  {
-    id: 'c-2',
-    type: 'group',
-    name: 'Core Architecture',
-    avatar: 'https://i.pravatar.cc/150?u=g-1',
-    lastMessage: 'James: Let\'s shard the ScyllaDB cluster.',
-    timestamp: '9:15 AM',
-    unreadCount: 0,
-    members: 42,
-    isPinned: true,
-    isMuted: true
-  },
-  {
-    id: 'c-3',
-    type: 'channel',
-    name: 'Lumina Global News',
-    avatar: 'https://i.pravatar.cc/150?u=ch-1',
-    lastMessage: 'Version 3.0 is now live in all regions!',
-    timestamp: 'Yesterday',
-    unreadCount: 0,
-    subscribers: '1.2M'
-  }
-];
-
-const MOCK_MESSAGES = {
-  'c-1': [
-    { id: 'm-1', senderId: 'u-2', text: 'Hey, did you review the whitepaper?', timestamp: '10:30 AM', status: 'read' },
-    { id: 'm-2', senderId: 'u-1', text: 'Just finished. The zero-knowledge proof implementation looks solid.', timestamp: '10:32 AM', status: 'read' },
-    { id: 'm-3', senderId: 'u-2', text: 'The encryption keys are rotated.', timestamp: '10:42 AM', status: 'delivered', reactions: [{ emoji: '🚀', count: 1 }] },
-  ],
-  'c-2': [
-    { id: 'g-1', senderId: 'u-5', text: 'Current write latency is < 5ms.', timestamp: '9:00 AM', status: 'read' },
-    { id: 'g-2', senderId: 'u-1', text: 'Perfect. Roll out the next sharding layer.', timestamp: '9:15 AM', status: 'read' }
-  ]
-};
-
-// --- Landing Page Component ---
-const LandingPage = ({ onGetStarted }) => {
-  const [scrolled, setScrolled] = useState(false);
-  
-  useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  return (
-    <div className="min-h-screen bg-black text-white font-sans">
-      {/* Dynamic Nav */}
-      <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled ? 'bg-black/80 backdrop-blur-xl border-b border-white/10 py-4' : 'bg-transparent py-6'}`}>
-        <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
-              <Shield size={24} />
-            </div>
-            <span className="text-2xl font-black tracking-tighter">LUMINA</span>
-          </div>
-          <div className="hidden lg:flex items-center gap-10 text-slate-500 font-bold text-sm uppercase tracking-widest">
-            <a href="#protocol" className="hover:text-white transition-colors">Protocol</a>
-            <a href="#infra" className="hover:text-white transition-colors">Infrastructure</a>
-            <a href="#dev" className="hover:text-white transition-colors">Developers</a>
-            <a href="#security" className="hover:text-white transition-colors">Security</a>
-          </div>
-          <button onClick={onGetStarted} className="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-2.5 rounded-full font-bold transition-all shadow-lg shadow-indigo-500/20">
-            Get Started
-          </button>
-        </div>
-      </nav>
-
-      {/* Hero Section */}
-      <section className="relative pt-40 pb-32 px-6 overflow-hidden">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[800px] bg-gradient-to-b from-indigo-500/10 to-transparent blur-[120px]" />
-        
-        <div className="max-w-7xl mx-auto text-center relative z-10">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-indigo-500/10 border border-indigo-500/20 rounded-full text-indigo-400 text-xs font-black uppercase tracking-widest mb-8">
-            <Zap size={14} className="fill-current" /> Enterprise Ready
-          </div>
-          <h1 className="text-6xl md:text-8xl font-black tracking-tighter mb-8 leading-[0.9]">
-            The New Standard for <br />
-            <span className="bg-gradient-to-r from-indigo-400 via-white to-indigo-400 bg-clip-text text-transparent">
-              Global Messaging.
-            </span>
-          </h1>
-          <p className="text-xl md:text-2xl text-slate-400 max-w-3xl mx-auto mb-12 leading-relaxed">
-            Engineered for performance. Built for privacy. A clean-room implementation of a massive-scale real-time ecosystem.
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-            <button onClick={onGetStarted} className="w-full sm:w-auto px-10 py-5 bg-white text-black rounded-2xl font-black text-xl hover:scale-105 transition-all shadow-2xl flex items-center justify-center gap-3">
-              Open Web Terminal <ArrowRight />
-            </button>
-            <div className="flex items-center gap-4 text-slate-500 font-bold">
-              <span className="flex items-center gap-1"><ShieldCheck size={18} /> E2EE</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-slate-800" />
-              <span className="flex items-center gap-1"><Globe size={18} /> Edge-Sync</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Feature Grid Section */}
-        <div className="max-w-7xl mx-auto mt-40 grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {[
-            { icon: <Lock />, title: "LDR Protocol", desc: "Proprietary Double-Ratchet implementation with quantum-resistant key exchange." },
-            { icon: <Activity />, title: "Ultra Latency", desc: "Sub-50ms internal message routing across our global private backbone." },
-            { icon: <Terminal />, title: "Bot SDK", desc: "Powerful gRPC-based bot framework with fine-grained permission control." },
-            { icon: <Database />, title: "Cloud Storage", desc: "Unlimited encrypted media storage with zero-knowledge sharding." }
-          ].map((feat, i) => (
-            <div key={i} className="bg-white/5 border border-white/10 p-8 rounded-3xl hover:bg-white/10 transition-all group">
-              <div className="w-12 h-12 bg-indigo-600/10 rounded-xl flex items-center justify-center text-indigo-500 mb-6 group-hover:scale-110 transition-transform">
-                {feat.icon}
-              </div>
-              <h3 className="text-xl font-bold mb-3">{feat.title}</h3>
-              <p className="text-slate-400 text-sm leading-relaxed">{feat.desc}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Detail Section: Infrastructure */}
-      <section id="infra" className="py-32 bg-white/[0.02] border-y border-white/5 px-6">
-        <div className="max-w-7xl mx-auto grid lg:grid-cols-2 items-center gap-20">
-          <div>
-            <h2 className="text-4xl font-black mb-6">Built for Millions. <br />Sharded for Billions.</h2>
-            <p className="text-lg text-slate-400 mb-8 leading-relaxed">
-              Unlike legacy architectures, Lumina uses a horizontally sharded ScyllaDB backend. This means your messages aren't just in a database—they are part of a globally distributed ledger designed for high-availability.
-            </p>
-            <ul className="space-y-4">
-              {[
-                "Multi-region masterless replication",
-                "Automated failover with zero packet loss",
-                "Binary-packed message transport (mProto)",
-                "Hardware-accelerated E2EE processing"
-              ].map((item, i) => (
-                <li key={i} className="flex items-center gap-3 text-slate-300 font-medium">
-                  <div className="w-6 h-6 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400">
-                    <Check size={14} />
-                  </div>
-                  {item}
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div className="bg-black border border-white/10 rounded-3xl p-6 shadow-3xl">
-            <div className="flex items-center gap-2 mb-6">
-              <div className="w-3 h-3 rounded-full bg-red-500" />
-              <div className="w-3 h-3 rounded-full bg-amber-500" />
-              <div className="w-3 h-3 rounded-full bg-green-500" />
-              <span className="text-xs text-slate-500 ml-4 font-mono">cluster-health --live</span>
-            </div>
-            <div className="space-y-4 font-mono text-sm">
-              <div className="flex justify-between border-b border-white/5 pb-2">
-                <span className="text-slate-400">Region: US-EAST</span>
-                <span className="text-green-500">99.999% UP</span>
-              </div>
-              <div className="flex justify-between border-b border-white/5 pb-2">
-                <span className="text-slate-400">Throughput</span>
-                <span className="text-indigo-400">1.2M req/sec</span>
-              </div>
-              <div className="flex justify-between border-b border-white/5 pb-2">
-                <span className="text-slate-400">P99 Latency</span>
-                <span className="text-indigo-400">14ms</span>
-              </div>
-              <div className="mt-8 h-32 bg-indigo-500/10 rounded-lg relative overflow-hidden">
-                <div className="absolute inset-0 flex items-end">
-                  {[...Array(30)].map((_, i) => (
-                    <div key={i} className="flex-1 bg-indigo-500/40 mr-1" style={{ height: `${Math.random() * 100}%` }} />
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="py-20 px-6 border-t border-white/5 max-w-7xl mx-auto flex flex-col md:flex-row justify-between gap-10">
-        <div className="max-w-xs">
-          <div className="flex items-center gap-2 mb-6">
-            <Shield className="text-indigo-600" />
-            <span className="text-xl font-black">LUMINA</span>
-          </div>
-          <p className="text-slate-500 text-sm leading-relaxed">
-            The next evolution in secure, high-performance communication. Zero tracking. Zero ads. Pure engineering.
-          </p>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-10">
-          <div>
-            <h5 className="font-bold mb-4 uppercase text-xs tracking-widest">Platform</h5>
-            <ul className="text-slate-400 text-sm space-y-2">
-              <li>Web</li>
-              <li>macOS</li>
-              <li>Windows</li>
-              <li>Linux</li>
-            </ul>
-          </div>
-          <div>
-            <h5 className="font-bold mb-4 uppercase text-xs tracking-widest">Developers</h5>
-            <ul className="text-slate-400 text-sm space-y-2">
-              <li>API Docs</li>
-              <li>Bot SDK</li>
-              <li>Whitepaper</li>
-              <li>GitHub</li>
-            </ul>
-          </div>
-          <div>
-            <h5 className="font-bold mb-4 uppercase text-xs tracking-widest">Company</h5>
-            <ul className="text-slate-400 text-sm space-y-2">
-              <li>Privacy</li>
-              <li>Security Audit</li>
-              <li>Terms</li>
-            </ul>
-          </div>
-        </div>
-      </footer>
-    </div>
-  );
-};
-
-// --- Auth flow ---
-const AuthFlow = ({ onAuthComplete }) => {
-  const [step, setStep] = useState('phone');
-  const [loading, setLoading] = useState(false);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      if (step === 'phone') setStep('otp');
-      else onAuthComplete(CURRENT_USER_MOCK);
-    }, 1500);
-  };
-
-  return (
-    <div className="min-h-screen bg-black flex items-center justify-center p-6">
-      <div className="w-full max-w-md bg-black border border-white/10 rounded-[2.5rem] p-10 shadow-3xl text-white">
-        <div className="text-center mb-10">
-          <div className="w-20 h-20 bg-indigo-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-indigo-500/20">
-            <Shield size={40} />
-          </div>
-          <h2 className="text-3xl font-black mb-2">Initialize Session</h2>
-          <p className="text-slate-500 font-medium">Authentication via Lumina-Auth gateway.</p>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-8">
-          {step === 'phone' ? (
-            <div className="space-y-4">
-              <label className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">Phone Number</label>
-              <div className="flex gap-3">
-                <div className="px-5 py-4 bg-white/5 border border-white/10 rounded-2xl font-black">+1</div>
-                <input 
-                  type="tel" placeholder="555-0123" required autoFocus
-                  className="flex-1 px-5 py-4 bg-white/5 border border-white/10 rounded-2xl outline-none focus:border-indigo-600 transition-all text-lg font-bold" 
-                />
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              <label className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">Enter OTP Code</label>
-              <div className="flex justify-between gap-3">
-                {[1,2,3,4,5].map(i => (
-                  <input 
-                    key={i} type="text" maxLength="1" required autoFocus={i === 1}
-                    className="w-full h-16 bg-white/5 border border-white/10 rounded-2xl text-center text-2xl font-black outline-none focus:border-indigo-600"
-                  />
-                ))}
-              </div>
-            </div>
-          )}
-          
-          <button 
-            disabled={loading}
-            className="w-full py-5 bg-indigo-600 hover:bg-indigo-500 disabled:bg-white/5 rounded-2xl font-black text-xl transition-all shadow-xl shadow-indigo-500/20"
-          >
-            {loading ? 'Processing...' : 'Secure Login'}
-          </button>
-        </form>
-      </div>
-    </div>
-  );
-};
-
-// --- App Shell Components ---
-
-const SettingsView = ({ onClose, isDarkMode, setIsDarkMode }) => {
-  return (
-    <div className="absolute inset-0 bg-white dark:bg-black z-50 flex flex-col animate-in slide-in-from-left duration-300">
-      <header className="h-16 flex items-center px-4 border-b dark:border-white/10 gap-4">
-        <button onClick={onClose} className="p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-white/5 rounded-full">
-          <ChevronLeft size={24} />
-        </button>
-        <h2 className="text-lg font-bold dark:text-white">Settings</h2>
-      </header>
-      
-      <div className="flex-1 overflow-y-auto bg-slate-50 dark:bg-black">
-        <div className="max-w-2xl mx-auto py-8 px-4 space-y-6">
-          {/* Profile Section */}
-          <div className="bg-white dark:bg-black p-6 rounded-3xl border dark:border-white/10 flex items-center gap-6">
-            <Avatar src={CURRENT_USER_MOCK.avatar} name={CURRENT_USER_MOCK.name} size="xl" />
-            <div>
-              <h3 className="text-xl font-bold dark:text-white">{CURRENT_USER_MOCK.name}</h3>
-              <p className="text-slate-500">@{CURRENT_USER_MOCK.username}</p>
-              <p className="text-sm text-indigo-500 font-bold mt-1">{CURRENT_USER_MOCK.phone}</p>
-            </div>
-          </div>
-
-          {/* Setting Groups */}
-          <div className="bg-white dark:bg-black rounded-3xl border dark:border-white/10 overflow-hidden">
-            {[
-              { icon: <Shield size={20} className="text-indigo-500" />, title: "Privacy & Security", subtitle: "Verification, Sessions, Passcode" },
-              { icon: <Volume2 size={20} className="text-amber-500" />, title: "Notifications", subtitle: "Global mute, Mention alerts" },
-              { icon: <Database size={20} className="text-green-500" />, title: "Data & Storage", subtitle: "Auto-download, Cache settings" },
-              { icon: <Layers size={20} className="text-blue-500" />, title: "Chat Settings", subtitle: "Stickers, Wallpapers, Font size" }
-            ].map((item, i) => (
-              <div key={i} className="flex items-center gap-4 p-5 hover:bg-slate-50 dark:hover:bg-white/5 cursor-pointer border-b last:border-0 dark:border-white/10 transition-colors">
-                <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-white/5 flex items-center justify-center">
-                  {item.icon}
-                </div>
-                <div className="flex-1">
-                  <p className="font-bold dark:text-white">{item.title}</p>
-                  <p className="text-sm text-slate-500">{item.subtitle}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="bg-white dark:bg-black p-4 rounded-3xl border dark:border-white/10 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              {isDarkMode ? <Moon className="text-slate-400" /> : <Sun className="text-amber-500" />}
-              <span className="font-bold dark:text-white">Dark Mode</span>
-            </div>
-            <button 
-              onClick={() => setIsDarkMode(!isDarkMode)}
-              className={`w-12 h-6 rounded-full transition-all relative ${isDarkMode ? 'bg-indigo-600' : 'bg-slate-300'}`}
-            >
-              <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${isDarkMode ? 'left-7' : 'left-1'}`} />
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const Avatar = ({ src, name, size = 'md', online = false }) => {
-  const sizeClasses = {
-    sm: 'w-8 h-8 text-xs', md: 'w-12 h-12 text-sm', lg: 'w-16 h-16 text-base', xl: 'w-24 h-24 text-lg'
-  };
-  return (
-    <div className={`relative flex-shrink-0 ${sizeClasses[size]}`}>
-      {src ? <img src={src} alt={name} className="w-full h-full rounded-full object-cover border border-slate-100 dark:border-white/10 shadow-sm" /> : 
-        <div className="w-full h-full rounded-full bg-indigo-500 flex items-center justify-center text-white font-black">{name.charAt(0)}</div>
-      }
-      {online && <div className="absolute bottom-1 right-1 w-3 h-3 bg-green-500 border-2 border-white dark:border-black rounded-full" />}
-    </div>
-  );
-};
-
-// --- Main Application UI ---
-export default function App() {
-  const [view, setView] = useState('landing'); 
-  const [currentUser, setCurrentUser] = useState(null);
-  const [activeChat, setActiveChat] = useState(INITIAL_CHATS[0]);
-  const [messages, setMessages] = useState(MOCK_MESSAGES);
-  const [inputText, setInputText] = useState('');
-  const [isDarkMode, setIsDarkMode] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [showSettings, setShowSettings] = useState(false);
-  const [showProfileInfo, setShowProfileInfo] = useState(false);
-  const [replyingTo, setReplyingTo] = useState(null);
-  
-  const scrollRef = useRef(null);
-
-  useEffect(() => {
-    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-  }, [messages, activeChat, view]);
-
-  const handleSendMessage = (e) => {
-    e?.preventDefault();
-    if (!inputText.trim()) return;
-    const newMessage = {
-      id: `m-${Date.now()}`,
-      senderId: currentUser.id,
-      text: inputText,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      status: 'sent',
-      replyTo: replyingTo?.text || null
-    };
-    setMessages(prev => ({ ...prev, [activeChat.id]: [...(prev[activeChat.id] || []), newMessage] }));
-    setInputText('');
-    setReplyingTo(null);
-    setTimeout(() => {
-      setMessages(prev => ({
-        ...prev,
-        [activeChat.id]: prev[activeChat.id].map(m => m.id === newMessage.id ? { ...m, status: 'read' } : m)
-      }));
-    }, 1200);
-  };
-
-  if (view === 'landing') return <LandingPage onGetStarted={() => setView('auth')} />;
-  if (view === 'auth') return <AuthFlow onAuthComplete={(u) => { setCurrentUser(u); setView('app'); }} />;
-
-  return (
-    <div className={`flex h-screen w-full overflow-hidden font-sans ${isDarkMode ? 'dark' : ''}`}>
-      <div className="flex h-full w-full bg-slate-50 dark:bg-black transition-colors duration-300">
-        
-        {/* Navigation Sidebar */}
-        <aside className="hidden md:flex flex-col w-20 bg-white dark:bg-black border-r dark:border-white/10 items-center py-8 gap-10">
-          <div className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-indigo-500/20">
-            <Shield size={24} />
-          </div>
-          <div className="flex flex-col gap-8 text-slate-400">
-            <button className="text-indigo-500"><MessageSquare size={26} /></button>
-            <button className="hover:text-indigo-500 transition-colors"><Users size={26} /></button>
-            <button className="hover:text-indigo-500 transition-colors"><Phone size={26} /></button>
-            <button className="hover:text-indigo-500 transition-colors"><Globe size={26} /></button>
-            <div className="mt-auto flex flex-col gap-8 items-center">
-              <button onClick={() => setShowSettings(true)} className="hover:text-indigo-500 transition-colors"><Settings size={26} /></button>
-              <div className="relative group cursor-pointer" onClick={() => setShowSettings(true)}>
-                <Avatar src={currentUser?.avatar} name={currentUser?.name} size="sm" />
-                <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-black" />
-              </div>
-            </div>
-          </div>
-        </aside>
-
-        {/* Chat List */}
-        <div className="w-full md:w-80 lg:w-[22rem] h-full flex flex-col bg-white dark:bg-black border-r dark:border-white/10 z-20">
-          <div className="p-6 pb-2 space-y-5">
-            <div className="flex items-center justify-between">
-              <h1 className="text-2xl font-black dark:text-white tracking-tight">Chats</h1>
-              <div className="flex gap-2">
-                <button className="p-2.5 bg-slate-50 dark:bg-white/5 text-slate-500 dark:text-slate-400 rounded-xl hover:text-indigo-500 transition-colors"><Edit3 size={18} /></button>
-              </div>
-            </div>
-            <div className="relative group">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={18} />
-              <input 
-                type="text" placeholder="Search..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-11 pr-4 py-3 bg-slate-50 dark:bg-white/5 border-none rounded-2xl text-sm focus:ring-2 ring-indigo-500/20 outline-none dark:text-white transition-all font-medium"
-              />
-            </div>
-          </div>
-
-          <div className="flex-1 overflow-y-auto px-2 custom-scrollbar space-y-1">
-            {INITIAL_CHATS.filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase())).map(chat => (
-              <div 
-                key={chat.id} onClick={() => setActiveChat(chat)}
-                className={`flex items-center gap-4 p-4 rounded-3xl cursor-pointer transition-all duration-200 ${activeChat.id === chat.id ? 'bg-indigo-50 dark:bg-indigo-600/10 shadow-sm' : 'hover:bg-slate-50 dark:hover:bg-white/5'}`}
-              >
-                <div className="relative">
-                  <Avatar src={chat.avatar} name={chat.name} online={chat.online} />
-                  {chat.isPinned && <div className="absolute -top-1 -right-1 p-1 bg-white dark:bg-black rounded-full shadow-sm border dark:border-white/10"><Pin size={10} className="text-indigo-500" /></div>}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex justify-between items-center mb-0.5">
-                    <div className="flex items-center gap-1.5 min-w-0">
-                      <span className={`font-bold truncate ${activeChat.id === chat.id ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-800 dark:text-slate-100'}`}>{chat.name}</span>
-                      {chat.isE2EE && <Lock size={12} className="text-green-500" />}
-                    </div>
-                    <span className="text-[10px] font-bold text-slate-400 whitespace-nowrap">{chat.timestamp}</span>
-                  </div>
-                  <div className="flex items-center justify-between gap-2">
-                    <p className="text-sm text-slate-500 dark:text-slate-400 truncate font-medium">{chat.lastMessage}</p>
-                    {chat.unreadCount > 0 && <span className="bg-indigo-600 text-white text-[10px] font-black px-1.5 py-0.5 rounded-lg min-w-[20px] text-center">{chat.unreadCount}</span>}
-                    {chat.isMuted && <BellOff size={12} className="text-slate-400" />}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-          {showSettings && <SettingsView onClose={() => setShowSettings(false)} isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />}
-        </div>
-
-        {/* Messaging Area */}
-        <main className="flex-1 h-full flex flex-col bg-slate-50 dark:bg-black relative z-10 transition-all duration-300">
-          <header className="h-16 flex items-center justify-between px-6 bg-white/80 dark:bg-black/80 backdrop-blur-xl border-b dark:border-white/10 sticky top-0 z-30">
-            <div className="flex items-center gap-4 cursor-pointer" onClick={() => setShowProfileInfo(true)}>
-              <Avatar src={activeChat.avatar} name={activeChat.name} online={activeChat.online} size="sm" />
-              <div>
-                <h2 className="text-sm font-black dark:text-white leading-tight">{activeChat.name}</h2>
-                <p className="text-[11px] text-green-500 font-bold uppercase tracking-widest">{activeChat.online ? 'Online' : 'offline'}</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-4">
-              <button className="p-2.5 text-slate-400 hover:text-indigo-500 transition-colors"><Search size={20} /></button>
-              <button className="p-2.5 text-slate-400 hover:text-indigo-500 transition-colors"><Phone size={20} /></button>
-              <button onClick={() => setShowProfileInfo(!showProfileInfo)} className="p-2.5 text-slate-400 hover:text-indigo-500 transition-colors"><MoreVertical size={20} /></button>
-            </div>
-          </header>
-
-          <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
-            {(messages[activeChat.id] || []).map((msg, i) => {
-              const isMe = msg.senderId === currentUser?.id;
-              return (
-                <div key={msg.id} className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
-                  <div className={`max-w-[70%] group relative animate-in zoom-in-95 duration-200`}>
-                    {msg.replyTo && (
-                      <div className="bg-slate-200 dark:bg-white/5 p-2.5 rounded-t-2xl border-l-4 border-indigo-500 mb-[-8px] text-[11px] opacity-90">
-                        <p className="font-black text-indigo-500 truncate mb-0.5">REPLY TO</p>
-                        <p className="truncate dark:text-slate-400">{msg.replyTo}</p>
-                      </div>
-                    )}
-                    <div className={`px-5 py-3 rounded-3xl shadow-sm text-[15px] leading-relaxed font-medium ${isMe ? 'bg-indigo-600 text-white rounded-tr-none' : 'bg-white dark:bg-white/10 text-slate-800 dark:text-slate-100 rounded-tl-none border dark:border-white/5'}`}>
-                      {msg.text}
-                      <div className="flex items-center justify-end gap-1.5 mt-1.5 opacity-60">
-                        <span className="text-[10px] font-bold">{msg.timestamp}</span>
-                        {isMe && (msg.status === 'read' ? <CheckCheck size={14} className="text-blue-300" /> : <Check size={14} />)}
-                      </div>
-                    </div>
-                    {/* Inline Actions */}
-                    <div className={`absolute top-0 opacity-0 group-hover:opacity-100 transition-all flex gap-1 p-1 ${isMe ? 'right-full mr-2' : 'left-full ml-2'}`}>
-                      <button onClick={() => setReplyingTo(msg)} className="p-2 bg-white dark:bg-white/10 rounded-full shadow-lg border dark:border-white/10 text-slate-400 hover:text-indigo-500 transition-colors"><Reply size={16} /></button>
-                      <button className="p-2 bg-white dark:bg-white/10 rounded-full shadow-lg border dark:border-white/10 text-slate-400 hover:text-indigo-500 transition-colors"><SmilePlus size={16} /></button>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          <footer className="p-6">
-            <div className="max-w-4xl mx-auto">
-              {replyingTo && (
-                <div className="bg-white dark:bg-white/5 rounded-t-[1.5rem] border-t border-x dark:border-white/10 p-4 flex justify-between items-center animate-in slide-in-from-bottom-5">
-                  <div className="flex gap-4 border-l-4 border-indigo-500 pl-4">
-                    <div>
-                      <p className="text-[10px] font-black text-indigo-500 uppercase tracking-widest">Replying to Message</p>
-                      <p className="text-sm text-slate-500 truncate mt-0.5">{replyingTo.text}</p>
-                    </div>
-                  </div>
-                  <button onClick={() => setReplyingTo(null)} className="p-2 text-slate-400 hover:text-red-500 transition-colors"><X size={20} /></button>
-                </div>
-              )}
-              <form 
-                onSubmit={handleSendMessage}
-                className={`flex items-end gap-3 bg-white dark:bg-white/5 p-3 shadow-2xl border dark:border-white/10 transition-all ${replyingTo ? 'rounded-b-[1.5rem]' : 'rounded-[1.5rem]'}`}
-              >
-                <div className="flex items-center gap-1 pb-1">
-                  <button type="button" className="p-2.5 text-slate-400 hover:text-indigo-500 transition-colors"><Smile size={24} /></button>
-                  <button type="button" className="p-2.5 text-slate-400 hover:text-indigo-500 transition-colors"><Paperclip size={24} /></button>
-                </div>
-                <textarea 
-                  rows="1" placeholder="Type a message..." value={inputText} onChange={(e) => setInputText(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendMessage(); } }}
-                  className="flex-1 bg-transparent border-none focus:ring-0 text-slate-800 dark:text-white py-3 px-2 resize-none max-h-48 scrollbar-none text-[15px] font-medium"
-                />
-                <div className="flex items-center pb-1">
-                  <button 
-                    type="submit" disabled={!inputText.trim()}
-                    className={`p-3.5 rounded-2xl shadow-xl transition-all ${inputText.trim() ? 'bg-indigo-600 text-white scale-105 hover:bg-indigo-700 shadow-indigo-500/20' : 'bg-slate-100 dark:bg-white/10 text-slate-400 opacity-50'}`}
-                  >
-                    {inputText.trim() ? <Send size={22} /> : <Mic size={22} />}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </footer >
-        </main>
-
-        {/* Info Right Sidebar */}
-        <aside className={`${showProfileInfo ? 'w-80 lg:w-96' : 'w-0'} flex flex-col bg-white dark:bg-black border-l dark:border-white/10 transition-all duration-300 overflow-hidden`}>
-          <header className="h-16 flex items-center px-6 border-b dark:border-white/10 justify-between flex-shrink-0">
-            <h3 className="font-black dark:text-white uppercase tracking-tighter">Profile Info</h3>
-            <button onClick={() => setShowProfileInfo(false)} className="p-2 text-slate-500 hover:text-indigo-500 transition-colors"><X size={20} /></button>
-          </header>
-          <div className="flex-1 overflow-y-auto px-6 py-10 space-y-10">
-            <div className="text-center">
-              <Avatar src={activeChat.avatar} name={activeChat.name} size="xl" />
-              <h4 className="mt-6 text-xl font-black dark:text-white">{activeChat.name}</h4>
-              <p className="text-slate-500 font-bold mt-1">@{activeChat.name.toLowerCase().replace(' ', '_')}</p>
-            </div>
-
-            <div className="space-y-6">
-              <div className="bg-slate-50 dark:bg-white/5 p-6 rounded-3xl border dark:border-white/10">
-                <p className="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-2">Bio</p>
-                <p className="text-sm text-slate-600 dark:text-slate-300 font-medium leading-relaxed">{activeChat.bio || "No bio set."}</p>
-              </div>
-
-              <div className="space-y-4">
-                <h5 className="text-xs font-black text-slate-400 uppercase tracking-widest px-2">Privacy & Actions</h5>
-                {[
-                  { icon: <BellOff size={18} />, title: "Mute Chat", color: "text-slate-600 dark:text-slate-400" },
-                  { icon: <Key size={18} />, title: "Verify Encryption", color: "text-green-500" },
-                  { icon: <Trash2 size={18} />, title: "Clear History", color: "text-red-500" }
-                ].map((action, i) => (
-                  <button key={i} className="w-full flex items-center gap-4 p-4 bg-white dark:bg-white/5 border dark:border-white/10 rounded-2xl hover:bg-slate-50 dark:hover:bg-white/10 transition-colors">
-                    <div className={action.color}>{action.icon}</div>
-                    <span className="text-sm font-bold dark:text-slate-200">{action.title}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </aside>
-
-      </div>
-
-      <style>{`
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LUMINA MESSENGER - PITCH BLACK</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #000000; }
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 20px; }
-        .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #333; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
         .scrollbar-none::-webkit-scrollbar { display: none; }
-      `}</style>
-    </div>
-  );
-}
+        /* Animation Utility */
+        .animate-in { animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef, useMemo, useCallback } = React;
+        
+        // Mocking Lucide Icons since they are loaded via script tag
+        const { 
+            Send, Paperclip, Smile, Search, MoreVertical, Check, CheckCheck, 
+            ChevronLeft, Phone, Video, Info, User, Users, Megaphone, 
+            Shield, Settings, Moon, Sun, Trash2, Edit3, Reply, MessageSquare,
+            Mic, Image: ImageIcon, File, Play, Pause, X, Pin, CornerUpRight,
+            SmilePlus, BarChart2, BellOff, Lock, Hash, ArrowRight, Globe, 
+            Zap, Github, Twitter, Menu, Cpu, ShieldCheck, Database, Layers,
+            Terminal, Share2, Volume2, Eye, EyeOff, Key, Monitor, Smartphone,
+            Activity, LifeBuoy, Heart
+        } = lucide;
+
+        // --- Constants & Enhanced Mock Data ---
+        const CURRENT_USER_MOCK = {
+            id: 'u-1',
+            username: 'alex_dev',
+            name: 'Alex Rivera',
+            avatar: 'https://i.pravatar.cc/150?u=u-1',
+            bio: 'Lead Architect @ Lumina. Engineering for privacy.',
+            presence: 'online',
+            phone: '+1 (555) 0123'
+        };
+
+        const INITIAL_CHATS = [
+            {
+                id: 'c-1',
+                type: 'dm',
+                name: 'Sarah Chen',
+                avatar: 'https://i.pravatar.cc/150?u=u-2',
+                lastMessage: 'The encryption keys are rotated.',
+                timestamp: '10:42 AM',
+                unreadCount: 2,
+                online: true,
+                isE2EE: true,
+                bio: 'Product Designer | Cryptography enthusiast'
+            },
+            {
+                id: 'c-2',
+                type: 'group',
+                name: 'Core Architecture',
+                avatar: 'https://i.pravatar.cc/150?u=g-1',
+                lastMessage: 'James: Let\'s shard the ScyllaDB cluster.',
+                timestamp: '9:15 AM',
+                unreadCount: 0,
+                members: 42,
+                isPinned: true,
+                isMuted: true
+            },
+            {
+                id: 'c-3',
+                type: 'channel',
+                name: 'Lumina Global News',
+                avatar: 'https://i.pravatar.cc/150?u=ch-1',
+                lastMessage: 'Version 3.0 is now live in all regions!',
+                timestamp: 'Yesterday',
+                unreadCount: 0,
+                subscribers: '1.2M'
+            }
+        ];
+
+        const MOCK_MESSAGES = {
+            'c-1': [
+                { id: 'm-1', senderId: 'u-2', text: 'Hey, did you review the whitepaper?', timestamp: '10:30 AM', status: 'read' },
+                { id: 'm-2', senderId: 'u-1', text: 'Just finished. The zero-knowledge proof implementation looks solid.', timestamp: '10:32 AM', status: 'read' },
+                { id: 'm-3', senderId: 'u-2', text: 'The encryption keys are rotated.', timestamp: '10:42 AM', status: 'delivered', reactions: [{ emoji: '🚀', count: 1 }] },
+            ],
+            'c-2': [
+                { id: 'g-1', senderId: 'u-5', text: 'Current write latency is < 5ms.', timestamp: '9:00 AM', status: 'read' },
+                { id: 'g-2', senderId: 'u-1', text: 'Perfect. Roll out the next sharding layer.', timestamp: '9:15 AM', status: 'read' }
+            ]
+        };
+
+        // --- Landing Page Component ---
+        const LandingPage = ({ onGetStarted }) => {
+            const [scrolled, setScrolled] = useState(false);
+            
+            useEffect(() => {
+                const handleScroll = () => setScrolled(window.scrollY > 20);
+                window.addEventListener('scroll', handleScroll);
+                return () => window.removeEventListener('scroll', handleScroll);
+            }, []);
+
+            return (
+                <div className="min-h-screen bg-black text-white font-sans">
+                    <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled ? 'bg-black/80 backdrop-blur-xl border-b border-white/10 py-4' : 'bg-transparent py-6'}`}>
+                        <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                                    <Shield size={24} />
+                                </div>
+                                <span className="text-2xl font-black tracking-tighter">LUMINA</span>
+                            </div>
+                            <div className="hidden lg:flex items-center gap-10 text-slate-500 font-bold text-sm uppercase tracking-widest">
+                                <a href="#protocol" className="hover:text-white transition-colors">Protocol</a>
+                                <a href="#infra" className="hover:text-white transition-colors">Infrastructure</a>
+                                <a href="#dev" className="hover:text-white transition-colors">Developers</a>
+                                <a href="#security" className="hover:text-white transition-colors">Security</a>
+                            </div>
+                            <button onClick={onGetStarted} className="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-2.5 rounded-full font-bold transition-all shadow-lg shadow-indigo-500/20">
+                                Get Started
+                            </button>
+                        </div>
+                    </nav>
+
+                    <section className="relative pt-40 pb-32 px-6 overflow-hidden">
+                        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[800px] bg-gradient-to-b from-indigo-500/10 to-transparent blur-[120px]" />
+                        <div className="max-w-7xl mx-auto text-center relative z-10">
+                            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-indigo-500/10 border border-indigo-500/20 rounded-full text-indigo-400 text-xs font-black uppercase tracking-widest mb-8">
+                                <Zap size={14} className="fill-current" /> Enterprise Ready
+                            </div>
+                            <h1 className="text-6xl md:text-8xl font-black tracking-tighter mb-8 leading-[0.9]">
+                                The New Standard for <br />
+                                <span className="bg-gradient-to-r from-indigo-400 via-white to-indigo-400 bg-clip-text text-transparent">Global Messaging.</span>
+                            </h1>
+                            <p className="text-xl md:text-2xl text-slate-400 max-w-3xl mx-auto mb-12 leading-relaxed">
+                                Engineered for performance. Built for privacy. A clean-room implementation of a massive-scale real-time ecosystem.
+                            </p>
+                            <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+                                <button onClick={onGetStarted} className="w-full sm:w-auto px-10 py-5 bg-white text-black rounded-2xl font-black text-xl hover:scale-105 transition-all shadow-2xl flex items-center justify-center gap-3">
+                                    Open Web Terminal <ArrowRight />
+                                </button>
+                                <div className="flex items-center gap-4 text-slate-500 font-bold">
+                                    <span className="flex items-center gap-1"><ShieldCheck size={18} /> E2EE</span>
+                                    <span className="w-1.5 h-1.5 rounded-full bg-slate-800" />
+                                    <span className="flex items-center gap-1"><Globe size={18} /> Edge-Sync</span>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            );
+        };
+
+        // --- Auth flow ---
+        const AuthFlow = ({ onAuthComplete }) => {
+            const [step, setStep] = useState('phone');
+            const [loading, setLoading] = useState(false);
+
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                setLoading(true);
+                setTimeout(() => {
+                    setLoading(false);
+                    if (step === 'phone') setStep('otp');
+                    else onAuthComplete(CURRENT_USER_MOCK);
+                }, 1500);
+            };
+
+            return (
+                <div className="min-h-screen bg-black flex items-center justify-center p-6">
+                    <div className="w-full max-w-md bg-black border border-white/10 rounded-[2.5rem] p-10 shadow-3xl text-white">
+                        <div className="text-center mb-10">
+                            <div className="w-20 h-20 bg-indigo-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-indigo-500/20">
+                                <Shield size={40} />
+                            </div>
+                            <h2 className="text-3xl font-black mb-2">Initialize Session</h2>
+                            <p className="text-slate-500 font-medium">Authentication via Lumina-Auth gateway.</p>
+                        </div>
+                        <form onSubmit={handleSubmit} className="space-y-8">
+                            {step === 'phone' ? (
+                                <div className="space-y-4">
+                                    <label className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">Phone Number</label>
+                                    <div className="flex gap-3">
+                                        <div className="px-5 py-4 bg-white/5 border border-white/10 rounded-2xl font-black">+1</div>
+                                        <input type="tel" placeholder="555-0123" required autoFocus className="flex-1 px-5 py-4 bg-white/5 border border-white/10 rounded-2xl outline-none focus:border-indigo-600 transition-all text-lg font-bold text-white" />
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="space-y-4">
+                                    <label className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">Enter OTP Code</label>
+                                    <div className="flex justify-between gap-3">
+                                        {[1,2,3,4,5].map(i => (
+                                            <input key={i} type="text" maxLength="1" required className="w-full h-16 bg-white/5 border border-white/10 rounded-2xl text-center text-2xl font-black outline-none focus:border-indigo-600 text-white" />
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                            <button disabled={loading} className="w-full py-5 bg-indigo-600 hover:bg-indigo-500 disabled:bg-white/5 rounded-2xl font-black text-xl transition-all shadow-xl shadow-indigo-500/20">
+                                {loading ? 'Processing...' : 'Secure Login'}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            );
+        };
+
+        const Avatar = ({ src, name, size = 'md', online = false }) => {
+            const sizeClasses = { sm: 'w-8 h-8 text-xs', md: 'w-12 h-12 text-sm', lg: 'w-16 h-16 text-base', xl: 'w-24 h-24 text-lg' };
+            return (
+                <div className={`relative flex-shrink-0 ${sizeClasses[size]}`}>
+                    {src ? <img src={src} alt={name} className="w-full h-full rounded-full object-cover border border-slate-100 dark:border-white/10" /> : 
+                        <div className="w-full h-full rounded-full bg-indigo-500 flex items-center justify-center text-white font-black">{name.charAt(0)}</div>}
+                    {online && <div className="absolute bottom-1 right-1 w-3 h-3 bg-green-500 border-2 border-white dark:border-black rounded-full" />}
+                </div>
+            );
+        };
+
+        const SettingsView = ({ onClose, isDarkMode, setIsDarkMode }) => (
+            <div className="absolute inset-0 bg-white dark:bg-black z-50 flex flex-col animate-in">
+                <header className="h-16 flex items-center px-4 border-b dark:border-white/10 gap-4">
+                    <button onClick={onClose} className="p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-white/5 rounded-full"><ChevronLeft size={24} /></button>
+                    <h2 className="text-lg font-bold dark:text-white">Settings</h2>
+                </header>
+                <div className="flex-1 p-6 space-y-6 overflow-y-auto">
+                    <div className="flex items-center gap-4 p-4 bg-slate-50 dark:bg-white/5 rounded-2xl">
+                        <Avatar src={CURRENT_USER_MOCK.avatar} name={CURRENT_USER_MOCK.name} size="lg" />
+                        <div><h3 className="font-bold dark:text-white">{CURRENT_USER_MOCK.name}</h3><p className="text-sm text-slate-500">@{CURRENT_USER_MOCK.username}</p></div>
+                    </div>
+                    <div className="flex items-center justify-between p-4 border dark:border-white/10 rounded-2xl">
+                        <div className="flex items-center gap-3 dark:text-white">{isDarkMode ? <Moon size={20}/> : <Sun size={20}/>} <span>Dark Mode</span></div>
+                        <button onClick={() => setIsDarkMode(!isDarkMode)} className={`w-12 h-6 rounded-full relative transition-colors ${isDarkMode ? 'bg-indigo-600' : 'bg-slate-300'}`}>
+                            <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${isDarkMode ? 'left-7' : 'left-1'}`} />
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+
+        function App() {
+            const [view, setView] = useState('landing'); 
+            const [currentUser, setCurrentUser] = useState(null);
+            const [activeChat, setActiveChat] = useState(INITIAL_CHATS[0]);
+            const [messages, setMessages] = useState(MOCK_MESSAGES);
+            const [inputText, setInputText] = useState('');
+            const [isDarkMode, setIsDarkMode] = useState(true);
+            const [searchQuery, setSearchQuery] = useState('');
+            const [showSettings, setShowSettings] = useState(false);
+            const [replyingTo, setReplyingTo] = useState(null);
+            
+            const scrollRef = useRef(null);
+            useEffect(() => { if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight; }, [messages, activeChat]);
+
+            const handleSendMessage = (e) => {
+                e?.preventDefault();
+                if (!inputText.trim()) return;
+                const newMessage = {
+                    id: `m-${Date.now()}`,
+                    senderId: currentUser.id,
+                    text: inputText,
+                    timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                    status: 'sent',
+                    replyTo: replyingTo?.text || null
+                };
+                setMessages(prev => ({ ...prev, [activeChat.id]: [...(prev[activeChat.id] || []), newMessage] }));
+                setInputText('');
+                setReplyingTo(null);
+            };
+
+            if (view === 'landing') return <LandingPage onGetStarted={() => setView('auth')} />;
+            if (view === 'auth') return <AuthFlow onAuthComplete={(u) => { setCurrentUser(u); setView('app'); }} />;
+
+            return (
+                <div className={`flex h-screen w-full overflow-hidden ${isDarkMode ? 'dark bg-black' : 'bg-slate-50'}`}>
+                    <aside className="hidden md:flex flex-col w-20 bg-white dark:bg-black border-r dark:border-white/10 items-center py-8 gap-10">
+                        <div className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white"><Shield size={24} /></div>
+                        <button onClick={() => setShowSettings(true)} className="text-slate-400 hover:text-indigo-500 mt-auto"><Settings size={26} /></button>
+                        <Avatar src={currentUser?.avatar} name={currentUser?.name} size="sm" online />
+                    </aside>
+
+                    <div className="w-full md:w-80 lg:w-[22rem] flex flex-col bg-white dark:bg-black border-r dark:border-white/10">
+                        <div className="p-6"><h1 className="text-2xl font-black dark:text-white mb-4">Chats</h1>
+                            <input type="text" placeholder="Search..." className="w-full p-3 bg-slate-50 dark:bg-white/5 rounded-xl dark:text-white outline-none" onChange={e => setSearchQuery(e.target.value)} />
+                        </div>
+                        <div className="flex-1 overflow-y-auto px-2 custom-scrollbar">
+                            {INITIAL_CHATS.filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase())).map(chat => (
+                                <div key={chat.id} onClick={() => setActiveChat(chat)} className={`flex items-center gap-4 p-4 rounded-3xl cursor-pointer ${activeChat.id === chat.id ? 'bg-indigo-600/10' : ''}`}>
+                                    <Avatar src={chat.avatar} name={chat.name} online={chat.online} />
+                                    <div className="flex-1 min-w-0"><div className="flex justify-between"><span className="font-bold dark:text-white truncate">{chat.name}</span><span className="text-[10px] text-slate-400">{chat.timestamp}</span></div><p className="text-sm text-slate-500 truncate">{chat.lastMessage}</p></div>
+                                </div>
+                            ))}
+                        </div>
+                        {showSettings && <SettingsView onClose={() => setShowSettings(false)} isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />}
+                    </div>
+
+                    <main className="flex-1 flex flex-col relative">
+                        <header className="h-16 flex items-center justify-between px-6 border-b dark:border-white/10 bg-white/80 dark:bg-black/80 backdrop-blur-xl">
+                            <div className="flex items-center gap-3"><Avatar src={activeChat.avatar} name={activeChat.name} size="sm" online={activeChat.online} /><h2 className="font-black dark:text-white">{activeChat.name}</h2></div>
+                        </header>
+                        <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar">
+                            {(messages[activeChat.id] || []).map(msg => (
+                                <div key={msg.id} className={`flex ${msg.senderId === currentUser.id ? 'justify-end' : 'justify-start'}`}>
+                                    <div className={`max-w-[70%] p-4 rounded-3xl ${msg.senderId === currentUser.id ? 'bg-indigo-600 text-white' : 'bg-white dark:bg-white/10 dark:text-white border dark:border-white/5'}`}>
+                                        {msg.replyTo && <div className="text-[10px] opacity-70 mb-1 italic border-l-2 pl-2 border-white/50">Replying to: {msg.replyTo}</div>}
+                                        {msg.text}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                        <footer className="p-6">
+                            <form onSubmit={handleSendMessage} className="flex items-center gap-3 bg-white dark:bg-white/5 p-3 rounded-2xl border dark:border-white/10">
+                                <button type="button" className="text-slate-400"><Paperclip/></button>
+                                <input type="text" className="flex-1 bg-transparent dark:text-white outline-none" placeholder="Type a message..." value={inputText} onChange={e => setInputText(e.target.value)} />
+                                <button className="p-2 bg-indigo-600 rounded-xl text-white"><Send size={20}/></button>
+                            </form>
+                        </footer>
+                    </main>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
